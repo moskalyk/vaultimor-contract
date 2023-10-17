@@ -95,6 +95,10 @@ contract Vaultimor {
         }
     }
 
+    function getVault(uint index) external view returns (Vault memory) {
+        return vaults[index];
+    }
+
     function retrieve(address _contractAddress, uint _tokenID, uint _amount) external {
         IERC1155(_contractAddress).safeTransferFrom(address(this), msg.sender, _tokenID, _amount, "");
     }
