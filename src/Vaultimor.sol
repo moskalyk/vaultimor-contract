@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import {IERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
+
 interface IERC1155 {
     function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes calldata data) external;
     function balanceOf(address account, uint256 id) external view returns (uint256);
@@ -12,7 +14,7 @@ interface ERC1271 {
     function isValidSignature(bytes32 _hash, bytes calldata _signature) external view returns (bytes4);
 }
 
-contract Vaultimor {
+contract Vaultimor is IERC1155Receiver {
 
     bytes4 constant internal MAGICVALUE = 0x1626ba7e;
 
@@ -101,5 +103,29 @@ contract Vaultimor {
 
     function retrieve(address _contractAddress, uint _tokenID, uint _amount) external {
         IERC1155(_contractAddress).safeTransferFrom(address(this), msg.sender, _tokenID, _amount, "");
+    }
+
+    function onERC1155Received(
+        address operator,
+        address from,
+        uint256 id,
+        uint256 value,
+        bytes calldata data
+    ) external returns (bytes4) {
+        return IERC1155Receiver.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(
+        address operator,
+        address from,
+        uint256[] calldata ids,
+        uint256[] calldata values,
+        bytes calldata data
+    ) external returns (bytes4) {
+        return IERC1155Receiver.onERC1155BatchReceived.selector;
+    }
+
+    function supportsInterface(bytes4 interfaceId) external view returns (bool) {
+        return interfaceId == type(IERC1155Receiver).interfaceId;
     }
 }
